@@ -14,6 +14,7 @@ import com.orangegangsters.github.swipyrefreshlayout.library.SwipyRefreshLayoutD
 
 import stan.geek.city.GeekApp;
 import stan.geek.city.R;
+import stan.geek.city.database.SQliteApi;
 import stan.geek.city.listeners.adapters.main.IMainRecyclerAdapterListener;
 import stan.geek.city.listeners.fragments.main.IMainFragmentClick;
 import stan.geek.city.rest.requests.posts.GetPosts;
@@ -27,13 +28,11 @@ public class MainFragment
 {
     //___________________VIEWS
     RecyclerView main_recycler;
-//    View waiter;
 
-//    private LinearLayoutManager layoutManager;
     private SwipyRefreshLayout swipyrefreshlayout;
     private MainRecyclerAdapter adapter;
     private int page = 0;
-//    private boolean loading = false;
+    private int lastPostID = -1;
 
     static public MainFragment newInstance()
     {
@@ -52,12 +51,10 @@ public class MainFragment
     protected void findViews(View v)
     {
         super.findViews(v);
-//        waiter = v.findViewById(R.id.waiter);
         main_recycler = (RecyclerView) v.findViewById(R.id.main_recycler);
         swipyrefreshlayout = (SwipyRefreshLayout) v.findViewById(R.id.swipyrefreshlayout);
         initList();
         init();
-
     }
 
     private void init()
@@ -67,8 +64,6 @@ public class MainFragment
 
     private void getPosts()
     {
-//        loading = true;
-//        waiter.setVisibility(View.VISIBLE);
         GetPosts request = new GetPosts(getActivity(), page + 1);
         GeekApp.spiceManager.execute(request, new RequestListener<GeekResponse>()
         {
@@ -76,21 +71,25 @@ public class MainFragment
             @Override
             public void onRequestFailure(SpiceException spiceException)
             {
-//                loading = false;
-//                waiter.setVisibility(View.INVISIBLE);
                 swipyrefreshlayout.setRefreshing(false);
-                Toast.makeText(getActivity(), spiceException.getMessage(), Toast.LENGTH_SHORT).show();
+                loadNewPosts();
+//                Toast.makeText(getActivity(), spiceException.getMessage(),
+//                        Toast.LENGTH_SHORT).show();
             }
 
             @Override
             public void onRequestSuccess(GeekResponse geekResponse)
             {
-//                loading = false;
-//                waiter.setVisibility(View.INVISIBLE);
                 swipyrefreshlayout.setRefreshing(false);
                 PostsResponse postsResponse = (PostsResponse) geekResponse;
-                adapter.swapList(postsResponse.posts);
-                page++;
+                if (postsResponse.posts != null && postsResponse.posts.size() > 0)
+                {
+//                    lastPostID = postsResponse.posts.get(postsResponse.posts.size()-1).ID;
+//                    adapter.swapList(postsResponse.posts);
+                    loadNewPosts();
+//                    adapter.swapCursor(SQliteApi.getPostSimpleFromPage(page + 1));
+//                    page++;
+                }
             }
         });
     }
@@ -100,20 +99,11 @@ public class MainFragment
         adapter = new MainRecyclerAdapter(getActivity(), new IMainRecyclerAdapterListener()
         {
             @Override
-            public void endScroll()
-            {
-                getPosts();
-            }
-
-            @Override
             public void pressItem(int pos)
             {
 
             }
         });
-//        layoutManager = new LinearLayoutManager(getActivity());
-//        layoutManager.setOrientation(LinearLayoutManager.VERTICAL);
-//        main_recycler.setLayoutManager(layoutManager);
         main_recycler.setLayoutManager(new LinearLayoutManager(getActivity()));
         main_recycler.setAdapter(adapter);
         swipyrefreshlayout.setColorSchemeResources(R.color.red, R.color.black, R.color.white);
@@ -122,7 +112,7 @@ public class MainFragment
             @Override
             public void onRefresh(SwipyRefreshLayoutDirection direction)
             {
-                if(direction == SwipyRefreshLayoutDirection.TOP)
+                if (direction == SwipyRefreshLayoutDirection.TOP)
                 {
                     refreshTop();
                 }
@@ -132,41 +122,17 @@ public class MainFragment
                 }
             }
         });
-//        main_recycler.setOnScrollListener(new RecyclerView.OnScrollListener()
-//        {
-//            int previousTotal = 0;
-//            int visibleThreshold = 5;
-//            int visibleItemCount, totalItemCount, firstVisibleItem;
-//
-//            @Override
-//            public void onScrolled(RecyclerView recyclerView, int dx, int dy)
-//            {
-//                super.onScrolled(recyclerView, dx, dy);
-//
-//                visibleItemCount = main_recycler.getChildCount();
-//                totalItemCount = layoutManager.getItemCount();
-//                firstVisibleItem = layoutManager.findFirstVisibleItemPosition();
-//
-//                //                if(loading)
-//                //                {
-//                //                    if(totalItemCount > previousTotal)
-//                //                    {
-//                //                        loading = false;
-//                //                        previousTotal = totalItemCount;
-//                //                    }
-//                //                }
-//                if(!loading && (totalItemCount - visibleItemCount) <= (firstVisibleItem + visibleThreshold))
-//                {
-//                    getPosts();
-//                }
-//            }
-//        });
     }
 
+    private void loadNewPosts()
+    {
+        adapter.swapCursor(SQliteApi.getPostSimpleFromPage(page + 1));
+        page++;
+    }
     private void refreshTop()
     {
         page = 0;
-        adapter.clearList();
+//        adapter.clearList();
         getPosts();
     }
 

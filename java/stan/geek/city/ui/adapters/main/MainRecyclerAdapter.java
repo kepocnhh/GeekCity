@@ -1,6 +1,8 @@
 package stan.geek.city.ui.adapters.main;
 
 import android.content.Context;
+import android.database.Cursor;
+import android.provider.BaseColumns;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -10,6 +12,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import stan.geek.city.R;
+import stan.geek.city.database.Tables;
 import stan.geek.city.helpers.PicturesLoader;
 import stan.geek.city.listeners.adapters.main.IMainRecyclerAdapterListener;
 import stan.geek.city.ui.holders.adapters.main.MainRecyclerHolder;
@@ -20,12 +23,13 @@ public class MainRecyclerAdapter
 {
     private Context mContext;
     private IMainRecyclerAdapterListener clickListener;
-    private List<Post> posts;
+    private Cursor mCursor;
+//    private List<Post> posts;
 
     public MainRecyclerAdapter(Context context, IMainRecyclerAdapterListener oc)
     {
         mContext = context;
-        posts = new ArrayList<>();
+//        posts = new ArrayList<>();
         clickListener = oc;
     }
 
@@ -39,35 +43,56 @@ public class MainRecyclerAdapter
     }
 
     @Override
-    public void onBindViewHolder(MainRecyclerHolder holder, int position)
+    public void onBindViewHolder(MainRecyclerHolder holder, int i)
     {
-        holder.post_title.setText(posts.get(position).title);
-//        holder.post_excerpt.loadData(posts[position].excerpt, "text/html", "UTF-8");
-        holder.post_excerpt.loadDataWithBaseURL(null, posts.get(position).excerpt, "text/html", "utf-8", null);
-//        holder.post_image.loadDataWithBaseURL(null, posts[position].featured_image.content, "text/html", "utf-8", null);
-        PicturesLoader.loadImage(holder.post_image, posts.get(position).featured_image.guid);
+        if(mCursor.moveToPosition(i))
+        {
+//            holder.post_title.setText(posts.get(position).title);
+//            holder.post_excerpt.loadDataWithBaseURL(null, posts.get(position).excerpt, "text/html", "utf-8", null);
+//            PicturesLoader.loadImage(holder.post_image, posts.get(position).featured_image.guid);
+            holder.post_title.setText(mCursor.getString(mCursor.getColumnIndex(Tables.PostSimple_title_COLUMN)));
+            holder.post_excerpt.loadDataWithBaseURL(null, mCursor.getString(mCursor.getColumnIndex(Tables.PostSimple_excerpt_COLUMN)), "text/html", "utf-8", null);
+            PicturesLoader.loadImage(holder.post_image, mCursor.getString(mCursor.getColumnIndex(Tables.PostSimple_featured_image_COLUMN)));
+        }
     }
 
     @Override
     public long getItemId(int position)
     {
-        return posts.get(position).ID;
+//        return posts.get(position).ID;
+        mCursor.moveToPosition(position);
+        return mCursor.getInt(mCursor.getColumnIndex(Tables.GeekID));
     }
 
     @Override
     public int getItemCount()
     {
-        return posts.size();
+        if(mCursor == null)
+        {
+            return 0;
+        } else
+        {
+            return mCursor.getCount();
+        }
     }
 
-    public void swapList(List<Post> ps)
+    public void swapCursor(Cursor c)
     {
-        posts.addAll(ps);
+        if(mCursor!=null)
+        {
+            mCursor.close();
+        }
+        mCursor = c;
         notifyDataSetChanged();
     }
-    public void clearList()
-    {
-        posts = new ArrayList<>();
-        notifyDataSetChanged();
-    }
+//    public void swapList(List<Post> ps)
+//    {
+//        posts.addAll(ps);
+//        notifyDataSetChanged();
+//    }
+//    public void clearList()
+//    {
+//        posts = new ArrayList<>();
+//        notifyDataSetChanged();
+//    }
 }

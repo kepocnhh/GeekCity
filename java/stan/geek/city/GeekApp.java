@@ -3,6 +3,7 @@ package stan.geek.city;
 import android.app.Application;
 import android.content.Context;
 
+import stan.geek.city.database.SQliteApi;
 import stan.geek.city.rest.GeekSpiceManager;
 
 public class GeekApp
@@ -16,5 +17,6 @@ public class GeekApp
     {
         super.onCreate();
         app_context = getApplicationContext();
+        SQliteApi.createDb(app_context);
     }
 }

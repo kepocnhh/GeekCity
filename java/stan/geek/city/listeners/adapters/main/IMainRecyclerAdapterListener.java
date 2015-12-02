@@ -5,5 +5,4 @@ import stan.geek.city.listeners.adapters.IGeekAdapterListener;
 public interface IMainRecyclerAdapterListener
     extends IGeekAdapterListener
 {
-    void endScroll();
 }

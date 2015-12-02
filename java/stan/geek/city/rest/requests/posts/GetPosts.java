@@ -2,6 +2,7 @@ package stan.geek.city.rest.requests.posts;
 
 import android.content.Context;
 
+import stan.geek.city.database.SQliteApi;
 import stan.geek.city.rest.requests.GeekRequest;
 import stan.geek.city.rest.responses.posts.PostsResponse;
 
@@ -20,6 +21,12 @@ public class GetPosts
     {
         super.loadDataFromNetwork();
         PostsResponse response = new PostsResponse(getService().getPostsFromPage(page));
+        SQliteApi.startTransaction();
+        for(int i=0; i<response.posts.size(); i++)
+        {
+            SQliteApi.insertPostSimple(response.posts.get(i).getCV());
+        }
+        SQliteApi.endTransaction();
         return response;
     }
 }
