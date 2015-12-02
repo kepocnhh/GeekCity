@@ -65,4 +65,9 @@ public class MainRecyclerAdapter
         posts.addAll(ps);
         notifyDataSetChanged();
     }
+    public void clearList()
+    {
+        posts = new ArrayList<>();
+        notifyDataSetChanged();
+    }
 }

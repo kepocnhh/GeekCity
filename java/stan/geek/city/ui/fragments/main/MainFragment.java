@@ -9,6 +9,8 @@ import android.widget.Toast;
 
 import com.octo.android.robospice.persistence.exception.SpiceException;
 import com.octo.android.robospice.request.listener.RequestListener;
+import com.orangegangsters.github.swipyrefreshlayout.library.SwipyRefreshLayout;
+import com.orangegangsters.github.swipyrefreshlayout.library.SwipyRefreshLayoutDirection;
 
 import stan.geek.city.GeekApp;
 import stan.geek.city.R;
@@ -25,12 +27,13 @@ public class MainFragment
 {
     //___________________VIEWS
     RecyclerView main_recycler;
-    View waiter;
+//    View waiter;
 
-    private GridLayoutManager gridLayoutManager;
+//    private LinearLayoutManager layoutManager;
+    private SwipyRefreshLayout swipyrefreshlayout;
     private MainRecyclerAdapter adapter;
     private int page = 0;
-    private boolean loading = false;
+//    private boolean loading = false;
 
     static public MainFragment newInstance()
     {
@@ -49,8 +52,9 @@ public class MainFragment
     protected void findViews(View v)
     {
         super.findViews(v);
-        waiter = v.findViewById(R.id.waiter);
+//        waiter = v.findViewById(R.id.waiter);
         main_recycler = (RecyclerView) v.findViewById(R.id.main_recycler);
+        swipyrefreshlayout = (SwipyRefreshLayout) v.findViewById(R.id.swipyrefreshlayout);
         initList();
         init();
 
@@ -63,8 +67,8 @@ public class MainFragment
 
     private void getPosts()
     {
-        loading = true;
-        waiter.setVisibility(View.VISIBLE);
+//        loading = true;
+//        waiter.setVisibility(View.VISIBLE);
         GetPosts request = new GetPosts(getActivity(), page + 1);
         GeekApp.spiceManager.execute(request, new RequestListener<GeekResponse>()
         {
@@ -72,16 +76,18 @@ public class MainFragment
             @Override
             public void onRequestFailure(SpiceException spiceException)
             {
-                loading = false;
-                waiter.setVisibility(View.INVISIBLE);
+//                loading = false;
+//                waiter.setVisibility(View.INVISIBLE);
+                swipyrefreshlayout.setRefreshing(false);
                 Toast.makeText(getActivity(), spiceException.getMessage(), Toast.LENGTH_SHORT).show();
             }
 
             @Override
             public void onRequestSuccess(GeekResponse geekResponse)
             {
-                loading = false;
-                waiter.setVisibility(View.INVISIBLE);
+//                loading = false;
+//                waiter.setVisibility(View.INVISIBLE);
+                swipyrefreshlayout.setRefreshing(false);
                 PostsResponse postsResponse = (PostsResponse) geekResponse;
                 adapter.swapList(postsResponse.posts);
                 page++;
@@ -105,38 +111,68 @@ public class MainFragment
 
             }
         });
-        gridLayoutManager = new GridLayoutManager(getActivity(), 1);
-        gridLayoutManager.setOrientation(LinearLayoutManager.VERTICAL);
-        main_recycler.setLayoutManager(gridLayoutManager);
+//        layoutManager = new LinearLayoutManager(getActivity());
+//        layoutManager.setOrientation(LinearLayoutManager.VERTICAL);
+//        main_recycler.setLayoutManager(layoutManager);
+        main_recycler.setLayoutManager(new LinearLayoutManager(getActivity()));
         main_recycler.setAdapter(adapter);
-        main_recycler.addOnScrollListener(new RecyclerView.OnScrollListener()
+        swipyrefreshlayout.setColorSchemeResources(R.color.red, R.color.black, R.color.white);
+        swipyrefreshlayout.setOnRefreshListener(new SwipyRefreshLayout.OnRefreshListener()
         {
-            int previousTotal = 0;
-            int visibleThreshold = 5;
-            int visibleItemCount, totalItemCount, firstVisibleItem;
             @Override
-            public void onScrolled(RecyclerView recyclerView, int dx, int dy)
+            public void onRefresh(SwipyRefreshLayoutDirection direction)
             {
-                super.onScrolled(recyclerView, dx, dy);
-
-                visibleItemCount = main_recycler.getChildCount();
-                totalItemCount = gridLayoutManager.getItemCount();
-                firstVisibleItem = gridLayoutManager.findFirstVisibleItemPosition();
-
-//                if(loading)
-//                {
-//                    if(totalItemCount > previousTotal)
-//                    {
-//                        loading = false;
-//                        previousTotal = totalItemCount;
-//                    }
-//                }
-                if(!loading && (totalItemCount - visibleItemCount) <= (firstVisibleItem + visibleThreshold))
+                if(direction == SwipyRefreshLayoutDirection.TOP)
                 {
-                    getPosts();
+                    refreshTop();
+                }
+                else
+                {
+                    refreshBot();
                 }
             }
         });
+//        main_recycler.setOnScrollListener(new RecyclerView.OnScrollListener()
+//        {
+//            int previousTotal = 0;
+//            int visibleThreshold = 5;
+//            int visibleItemCount, totalItemCount, firstVisibleItem;
+//
+//            @Override
+//            public void onScrolled(RecyclerView recyclerView, int dx, int dy)
+//            {
+//                super.onScrolled(recyclerView, dx, dy);
+//
+//                visibleItemCount = main_recycler.getChildCount();
+//                totalItemCount = layoutManager.getItemCount();
+//                firstVisibleItem = layoutManager.findFirstVisibleItemPosition();
+//
+//                //                if(loading)
+//                //                {
+//                //                    if(totalItemCount > previousTotal)
+//                //                    {
+//                //                        loading = false;
+//                //                        previousTotal = totalItemCount;
+//                //                    }
+//                //                }
+//                if(!loading && (totalItemCount - visibleItemCount) <= (firstVisibleItem + visibleThreshold))
+//                {
+//                    getPosts();
+//                }
+//            }
+//        });
+    }
+
+    private void refreshTop()
+    {
+        page = 0;
+        adapter.clearList();
+        getPosts();
+    }
+
+    private void refreshBot()
+    {
+        getPosts();
     }
 
     private IMainFragmentClick getClickListener()
