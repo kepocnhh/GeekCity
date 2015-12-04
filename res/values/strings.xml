@@ -1,4 +1,8 @@
 <resources>
     <string name="app_name">GeekCity</string>
     <string name="MainFragment">main_fragment</string>
+
+    <!-- Drawer left-->
+    <string name="comics">Комиксы</string>
+    <string name="posts">Лента</string>
 </resources>
