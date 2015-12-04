@@ -11,7 +11,7 @@ public class SQliteApi
     public static DatabaseHelper dbHelper;
     public static volatile SQLiteDatabase sdb;
     public static String DB_NAME = "geeckcity";
-    public static int DB_VERSION = 1512030045;
+    public static int DB_VERSION = 1512040334;
 
     public static void createDb(Context context)
     {
@@ -35,7 +35,7 @@ public class SQliteApi
     /* ************************************************************************ */
     public static long insertPostSimple(ContentValues content)
     {
-        return sdb.insert(Tables.PostSimple_TABLE_NAME, null, content);
+        return sdb.insertWithOnConflict(Tables.PostSimple_TABLE_NAME, null, content, SQLiteDatabase.CONFLICT_REPLACE);
     }
 
     // Clear table
@@ -69,11 +69,14 @@ public class SQliteApi
 //        SELECT * FROM Products
 //        WHERE Price BETWEEN 10 AND 20;
 //        ORDER BY last_name;
+//        LIMIT 20 OFFSET 10
         Cursor cursor = sdb.rawQuery(
                 "SELECT * "
                         + "FROM " + Tables.PostSimple_TABLE_NAME + " "
-                        + "WHERE " + BaseColumns._ID + " BETWEEN 0 AND " + p*10 + " "
+//                        + "WHERE " + BaseColumns._ID + " BETWEEN 0 AND " + p*10 + " "
                         + "ORDER BY " + Tables.PostSimple_date_COLUMN + " DESC" + " "
+//                        + "LIMIT 10 OFFSET " + p*10 + "; "
+                        + "LIMIT " + p*10 + "; "
                 , new String[]{});
         return cursor;
     }

@@ -61,7 +61,7 @@ public class MainRecyclerAdapter
     {
 //        return posts.get(position).ID;
         mCursor.moveToPosition(position);
-        return mCursor.getInt(mCursor.getColumnIndex(Tables.GeekID));
+        return mCursor.getInt(mCursor.getColumnIndex(BaseColumns._ID));
     }
 
     @Override

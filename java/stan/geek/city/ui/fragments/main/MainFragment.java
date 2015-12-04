@@ -1,9 +1,11 @@
 package stan.geek.city.ui.fragments.main;
 
+import android.database.Cursor;
 import android.os.Bundle;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.View;
 import android.widget.Toast;
 
@@ -32,7 +34,7 @@ public class MainFragment
     private SwipyRefreshLayout swipyrefreshlayout;
     private MainRecyclerAdapter adapter;
     private int page = 0;
-    private int lastPostID = -1;
+    private int postsCount = -1;
 
     static public MainFragment newInstance()
     {
@@ -106,7 +108,7 @@ public class MainFragment
         });
         main_recycler.setLayoutManager(new LinearLayoutManager(getActivity()));
         main_recycler.setAdapter(adapter);
-        swipyrefreshlayout.setColorSchemeResources(R.color.red, R.color.black, R.color.white);
+        swipyrefreshlayout.setColorSchemeResources(R.color.red, R.color.black, R.color.red);
         swipyrefreshlayout.setOnRefreshListener(new SwipyRefreshLayout.OnRefreshListener()
         {
             @Override
@@ -126,8 +128,15 @@ public class MainFragment
 
     private void loadNewPosts()
     {
-        adapter.swapCursor(SQliteApi.getPostSimpleFromPage(page + 1));
-        page++;
+        Cursor c = SQliteApi.getPostSimpleFromPage(page + 1);
+        adapter.swapCursor(c);
+        int pc = c.getCount();
+        if(pc != postsCount || page == 0)
+        {
+            postsCount = pc;
+            page++;
+        }
+        Log.e("loadNewPosts", "postsCount = " + postsCount);
     }
     private void refreshTop()
     {
