@@ -11,7 +11,7 @@ public class SQliteApi
     public static DatabaseHelper dbHelper;
     public static volatile SQLiteDatabase sdb;
     public static String DB_NAME = "geeckcity";
-    public static int DB_VERSION = 1512040334;
+    public static int DB_VERSION = 1512060501;
 
     public static void createDb(Context context)
     {
@@ -37,6 +37,10 @@ public class SQliteApi
     {
         return sdb.insertWithOnConflict(Tables.PostSimple_TABLE_NAME, null, content, SQLiteDatabase.CONFLICT_REPLACE);
     }
+    public static long insertCategory(ContentValues content)
+    {
+        return sdb.insertWithOnConflict(Tables.Category_TABLE_NAME, null, content, SQLiteDatabase.CONFLICT_REPLACE);
+    }
 
     // Clear table
     /* ************************************************************************ */
@@ -53,17 +57,15 @@ public class SQliteApi
         Cursor main = sdb.query(Tables.PostSimple_TABLE_NAME, null, null, null, null, null, null);
         return main;
     }
+    public static Cursor getCategory()
+    {
+        Cursor main = sdb.query(Tables.Category_TABLE_NAME, null, null, null, null, null, null);
+        return main;
+    }
 
     // GET MANY BY PARAMS
     /* ************************************************************************ */
-    public static Cursor getOnePostSimple(String id)
-    {
-        Cursor shop = sdb.query(Tables.PostSimple_TABLE_NAME, null, BaseColumns._ID + " = ?", new String[]{ id }, null, null, null);
-        return shop;
-    }
 
-    // GET ONE
-    /* ************************************************************************ */
     public static Cursor getPostSimpleFromPage(int p)
     {
 //        SELECT * FROM Products
@@ -81,11 +83,27 @@ public class SQliteApi
         return cursor;
     }
 
+    // GET ONE
+    /* ************************************************************************ */
+    public static Cursor getOnePostSimpleFromId(String id)
+    {
+        Cursor cursor = sdb.query(Tables.PostSimple_TABLE_NAME, null, BaseColumns._ID + " = ?",
+                new String[]{id}, null, null, null);
+        return cursor;
+    }
+    public static Cursor getOneCategoryFromId(String id)
+    {
+        Cursor cursor = sdb.query(Tables.Category_TABLE_NAME, null, BaseColumns._ID + " = ?",
+                new String[]{id}, null, null, null);
+        return cursor;
+    }
+
     // CLEAR DB TABLES
     /* ************************************************************************ */
     public static void clearDB(SQLiteDatabase db)
     {
         db.execSQL("drop table if exists " + Tables.PostSimple_TABLE_NAME);
+        db.execSQL("drop table if exists " + Tables.Category_TABLE_NAME);
     }
 
     // CREATE DB TABLES
@@ -93,5 +111,6 @@ public class SQliteApi
     public static void createDBTables(SQLiteDatabase db)
     {
         db.execSQL(Tables.PostSimple);
+        db.execSQL(Tables.Category);
     }
 }

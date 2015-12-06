@@ -1,15 +1,23 @@
 package stan.geek.city.ui.activities;
 
+import android.database.Cursor;
 import android.support.v4.widget.DrawerLayout;
-import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarDrawerToggle;
-import android.view.Menu;
-import android.view.MenuInflater;
-import android.view.MenuItem;
-import android.widget.Toast;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
+import android.util.Log;
+import android.view.View;
 
+import com.octo.android.robospice.persistence.exception.SpiceException;
+import com.octo.android.robospice.request.listener.RequestListener;
+
+import stan.geek.city.GeekApp;
 import stan.geek.city.R;
+import stan.geek.city.database.SQliteApi;
 import stan.geek.city.listeners.fragments.main.IMainFragmentClick;
+import stan.geek.city.rest.requests.category.GetAllCategory;
+import stan.geek.city.rest.responses.GeekResponse;
+import stan.geek.city.ui.adapters.cactegory.CategoryRecyclerAdapter;
 import stan.geek.city.ui.fragments.main.MainFragment;
 
 public class Main
@@ -17,8 +25,12 @@ public class Main
         implements IMainFragmentClick
 {
     //_______________VIEWS
+    android.support.v7.widget.RecyclerView category_recycler;
+    android.support.v7.widget.Toolbar toolbar;
+    DrawerLayout main_drawer;
 
     //_______________FIELDS
+    private CategoryRecyclerAdapter categoryAdapter;
 
     public Main()
     {
@@ -33,32 +45,91 @@ public class Main
     @Override
     protected void initViews()
     {
-        //        ActionBar actionBar = getSupportActionBar();
-        getSupportActionBar().setHomeButtonEnabled(true);
-        DrawerLayout main_drawer = (DrawerLayout) findViewById(R.id.main_drawer);
-        ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(this, main_drawer, R.string.app_name, R.string.MainFragment);
-        toggle.setDrawerIndicatorEnabled(true);
-        main_drawer.setDrawerListener(toggle);
+        category_recycler = (RecyclerView) findViewById(R.id.category_recycler);
+        toolbar = (android.support.v7.widget.Toolbar) findViewById(R.id.toolbar);
+        main_drawer = (DrawerLayout) findViewById(R.id.main_drawer);
+        initList();
+    }
+
+    private void initList()
+    {
+        categoryAdapter = new CategoryRecyclerAdapter(this);
+        category_recycler.setLayoutManager(new LinearLayoutManager(this));
+        category_recycler.setAdapter(categoryAdapter);
     }
 
     @Override
     protected void init()
     {
+        initRequest();
+        initToolbar();
         addFragment(MainFragment.newInstance());
     }
 
-    public boolean onCreateOptionsMenu(Menu menu)
+    private void initToolbar()
     {
-        menu.add("menu1");
-        menu.add("menu2");
-        menu.add("menu3");
-        menu.add("menu4");
-        return super.onCreateOptionsMenu(menu);
+        setSupportActionBar(toolbar);
+        getSupportActionBar().setTitle(R.string.app_name);
+        ActionBarDrawerToggle drawerToggle = new ActionBarDrawerToggle(this, main_drawer,
+                toolbar, R.string.app_name, R.string.MainFragment)
+        {
+            @Override
+            public void onDrawerClosed(View drawerView)
+            {
+                super.onDrawerClosed(drawerView);
+                toolbar.setSubtitle("onDrawerClosed");
+//                Log.e("ActionBarDrawerToggle", "onDrawerClosed");
+            }
+
+            @Override
+            public void onDrawerOpened(View drawerView)
+            {
+                super.onDrawerOpened(drawerView);
+                toolbar.setSubtitle("onDrawerOpened");
+//                Log.e("ActionBarDrawerToggle", "onDrawerOpened");
+            }
+
+            @Override
+            public void onDrawerSlide(View drawerView, float slideOffset)
+            {
+                super.onDrawerSlide(drawerView, slideOffset);
+//                Log.e("ActionBarDrawerToggle", "onDrawerSlide - slideOffset = " + slideOffset);
+            }
+
+            @Override
+            public void onDrawerStateChanged(int newState)
+            {
+                super.onDrawerStateChanged(newState);
+//                Log.e("ActionBarDrawerToggle", "onDrawerStateChanged - newState = " + newState);
+            }
+        };
+        main_drawer.setDrawerListener(drawerToggle);
+        drawerToggle.syncState();
     }
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item)
+
+    private void initRequest()
     {
-        Toast.makeText(this, item.getTitle(), Toast.LENGTH_SHORT).show();
-        return super.onOptionsItemSelected(item);
+        GetAllCategory request = new GetAllCategory(this);
+        GeekApp.spiceManager.execute(request, new RequestListener<GeekResponse>()
+        {
+            @Override
+            public void onRequestFailure(SpiceException spiceException)
+            {
+                settingToolbar();
+            }
+
+            @Override
+            public void onRequestSuccess(GeekResponse geekResponse)
+            {
+                settingToolbar();
+            }
+        });
+    }
+
+    private void settingToolbar()
+    {
+        Cursor c = SQliteApi.getCategory();
+        categoryAdapter.swapCursor(c);
+        Log.e("getCategory", "Category Count = " + c.getCount());
     }
 }

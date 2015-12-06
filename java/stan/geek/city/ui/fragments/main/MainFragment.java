@@ -2,12 +2,10 @@ package stan.geek.city.ui.fragments.main;
 
 import android.database.Cursor;
 import android.os.Bundle;
-import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.View;
-import android.widget.Toast;
 
 import com.octo.android.robospice.persistence.exception.SpiceException;
 import com.octo.android.robospice.request.listener.RequestListener;
@@ -17,7 +15,6 @@ import com.orangegangsters.github.swipyrefreshlayout.library.SwipyRefreshLayoutD
 import stan.geek.city.GeekApp;
 import stan.geek.city.R;
 import stan.geek.city.database.SQliteApi;
-import stan.geek.city.listeners.adapters.main.IMainRecyclerAdapterListener;
 import stan.geek.city.listeners.fragments.main.IMainFragmentClick;
 import stan.geek.city.rest.requests.posts.GetPosts;
 import stan.geek.city.rest.responses.GeekResponse;
@@ -75,8 +72,6 @@ public class MainFragment
             {
                 swipyrefreshlayout.setRefreshing(false);
                 loadNewPosts();
-//                Toast.makeText(getActivity(), spiceException.getMessage(),
-//                        Toast.LENGTH_SHORT).show();
             }
 
             @Override
@@ -86,11 +81,7 @@ public class MainFragment
                 PostsResponse postsResponse = (PostsResponse) geekResponse;
                 if (postsResponse.posts != null && postsResponse.posts.size() > 0)
                 {
-//                    lastPostID = postsResponse.posts.get(postsResponse.posts.size()-1).ID;
-//                    adapter.swapList(postsResponse.posts);
                     loadNewPosts();
-//                    adapter.swapCursor(SQliteApi.getPostSimpleFromPage(page + 1));
-//                    page++;
                 }
             }
         });
@@ -98,14 +89,7 @@ public class MainFragment
 
     private void initList()
     {
-        adapter = new MainRecyclerAdapter(getActivity(), new IMainRecyclerAdapterListener()
-        {
-            @Override
-            public void pressItem(int pos)
-            {
-
-            }
-        });
+        adapter = new MainRecyclerAdapter(getActivity());
         main_recycler.setLayoutManager(new LinearLayoutManager(getActivity()));
         main_recycler.setAdapter(adapter);
         swipyrefreshlayout.setColorSchemeResources(R.color.red, R.color.black, R.color.red);
@@ -141,7 +125,6 @@ public class MainFragment
     private void refreshTop()
     {
         page = 0;
-//        adapter.clearList();
         getPosts();
     }
 

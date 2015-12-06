@@ -5,6 +5,7 @@ import java.util.List;
 import retrofit.http.GET;
 import retrofit.http.Query;
 import stan.geek.city.units.Post;
+import stan.geek.city.units.taxonomy.Category;
 
 public interface GeekAPI
 {
@@ -15,4 +16,10 @@ public interface GeekAPI
 
     @GET("/wp-json/posts")
     List<Post> getPostsFromPage(@Query("page") int page);
+
+
+    //_____________CATEGORIES_______________//
+
+    @GET("/wp-json/taxonomies/category/terms")
+    List<Category> getCategories();
 }
