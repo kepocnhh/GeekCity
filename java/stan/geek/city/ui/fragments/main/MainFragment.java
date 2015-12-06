@@ -15,19 +15,25 @@ import com.orangegangsters.github.swipyrefreshlayout.library.SwipyRefreshLayoutD
 import stan.geek.city.GeekApp;
 import stan.geek.city.R;
 import stan.geek.city.database.SQliteApi;
+import stan.geek.city.helpers.SQliteHelper;
 import stan.geek.city.listeners.fragments.main.IMainFragmentClick;
 import stan.geek.city.rest.requests.posts.GetPosts;
 import stan.geek.city.rest.responses.GeekResponse;
 import stan.geek.city.rest.responses.posts.PostsResponse;
 import stan.geek.city.ui.adapters.main.MainRecyclerAdapter;
 import stan.geek.city.ui.fragments.StanFragment;
+import stan.geek.city.units.taxonomy.Category;
 
 public class MainFragment
         extends StanFragment
 {
+    private static final String CATEGORY_id_TAG = "category_id";
+
     //___________________VIEWS
     RecyclerView main_recycler;
 
+    //_______________FIELDS
+    private Category category;
     private SwipyRefreshLayout swipyrefreshlayout;
     private MainRecyclerAdapter adapter;
     private int page = 0;
@@ -35,9 +41,15 @@ public class MainFragment
 
     static public MainFragment newInstance()
     {
+        return new MainFragment();
+    }
+
+    static public MainFragment newInstance(int category_id)
+    {
         MainFragment fragment = new MainFragment();
         Bundle args = fragment.getArguments();
-        //        fragment.setArguments(args);
+        args.putInt(CATEGORY_id_TAG, category_id);
+        fragment.setArguments(args);
         return fragment;
     }
 
@@ -58,12 +70,27 @@ public class MainFragment
 
     private void init()
     {
+        category = null;
+        int category_id = getArguments().getInt(CATEGORY_id_TAG, -1);
+        if(category_id > 0)
+        {
+            Category unit = SQliteHelper.tryGetCategoryFromId(category_id);
+            if(unit != null)
+            {
+                category = unit;
+            }
+        }
         getPosts();
     }
 
     private void getPosts()
     {
-        GetPosts request = new GetPosts(getActivity(), page + 1);
+        String category_slug = null;
+        if(category != null)
+        {
+            category_slug = category.slug;
+        }
+        GetPosts request = new GetPosts(getActivity(), category_slug, page + 1);
         GeekApp.spiceManager.execute(request, new RequestListener<GeekResponse>()
         {
 
@@ -112,16 +139,25 @@ public class MainFragment
 
     private void loadNewPosts()
     {
-        Cursor c = SQliteApi.getPostSimpleFromPage(page + 1);
+        Cursor c = null;
+        if(category == null)
+        {
+            c = SQliteApi.getPostSimpleFromPage(page + 1);
+        }
+        else
+        {
+            c = SQliteApi.getPostSimpleFromCategoryPage(category.ID, page + 1);
+        }
         adapter.swapCursor(c);
         int pc = c.getCount();
-        if(pc != postsCount || page == 0)
+        if (pc != postsCount || page == 0)
         {
             postsCount = pc;
             page++;
         }
         Log.e("loadNewPosts", "postsCount = " + postsCount);
     }
+
     private void refreshTop()
     {
         page = 0;

@@ -12,6 +12,7 @@ public class Tables
     public static final String PostSimple_featured_image_COLUMN = "featured_image";
     public static final String PostSimple_excerpt_COLUMN = "excerpt";
     public static final String PostSimple_date_COLUMN = "date";
+    public static final String PostSimple_category_slug_COLUMN = "category_slug";
 
     public static final String PostSimple = "create table if not exists "
             + PostSimple_TABLE_NAME + " (" +
@@ -19,6 +20,7 @@ public class Tables
             PostSimple_title_COLUMN + " text," +
             PostSimple_featured_image_COLUMN + " text," +
             PostSimple_excerpt_COLUMN + " text," +
+            PostSimple_category_slug_COLUMN + " text," +
             PostSimple_date_COLUMN + " text" +
             ");";
 
@@ -36,5 +38,17 @@ public class Tables
             Category_slug_COLUMN + " text," +
             Category_description_COLUMN + " text," +
             Category_parent_id_COLUMN + " integer" +
+            ");";
+
+    //_________________________Posts and Category
+    public static final String PostsAndCategory_TABLE_NAME = "posts_and_category";
+    public static final String PostsAndCategory_category_id_COLUMN = "category_id";
+    public static final String PostsAndCategory_post_id_COLUMN = "post_id";
+
+    public static final String PostsAndCategory = "create table if not exists "
+            + PostsAndCategory_TABLE_NAME + " (" +
+            BaseColumns._ID + " integer primary key autoincrement, " +
+            PostsAndCategory_category_id_COLUMN + " text," +
+            PostsAndCategory_post_id_COLUMN + " text" +
             ");";
 }

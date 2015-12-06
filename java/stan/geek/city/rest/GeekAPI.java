@@ -17,6 +17,13 @@ public interface GeekAPI
     @GET("/wp-json/posts")
     List<Post> getPostsFromPage(@Query("page") int page);
 
+    @GET("/wp-json/posts")
+    List<Post> getPostsFromCategory(@Query("filter[category_name]") String category);
+
+    @GET("/wp-json/posts")
+    List<Post> getPostsFromCategoryPage(@Query("filter[category_name]") String category,
+                                        @Query("page") int page);
+
 
     //_____________CATEGORIES_______________//
 

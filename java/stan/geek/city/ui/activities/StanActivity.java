@@ -42,6 +42,10 @@ public abstract class StanActivity
     {
         fTP.add(f);
     }
+    public void replaceFragment(Fragment f)
+    {
+        fTP.replace(f);
+    }
 
     protected abstract void initFragments();
 

@@ -1,6 +1,8 @@
 package stan.geek.city.ui.activities;
 
 import android.database.Cursor;
+import android.os.Handler;
+import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.widget.LinearLayoutManager;
@@ -14,23 +16,31 @@ import com.octo.android.robospice.request.listener.RequestListener;
 import stan.geek.city.GeekApp;
 import stan.geek.city.R;
 import stan.geek.city.database.SQliteApi;
+import stan.geek.city.helpers.SQliteHelper;
+import stan.geek.city.helpers.UriHelper;
+import stan.geek.city.listeners.adapters.ICategoryListener;
 import stan.geek.city.listeners.fragments.main.IMainFragmentClick;
 import stan.geek.city.rest.requests.category.GetAllCategory;
+import stan.geek.city.rest.requests.posts.GetPostsFromCategory;
 import stan.geek.city.rest.responses.GeekResponse;
 import stan.geek.city.ui.adapters.cactegory.CategoryRecyclerAdapter;
 import stan.geek.city.ui.fragments.main.MainFragment;
+import stan.geek.city.units.taxonomy.Category;
 
 public class Main
         extends StanActivity
-        implements IMainFragmentClick
+        implements IMainFragmentClick, ICategoryListener
 {
     //_______________VIEWS
     android.support.v7.widget.RecyclerView category_recycler;
     android.support.v7.widget.Toolbar toolbar;
     DrawerLayout main_drawer;
 
+    //_______________FRAGMENTS
+
     //_______________FIELDS
     private CategoryRecyclerAdapter categoryAdapter;
+    private Category category;
 
     public Main()
     {
@@ -53,7 +63,7 @@ public class Main
 
     private void initList()
     {
-        categoryAdapter = new CategoryRecyclerAdapter(this);
+        categoryAdapter = new CategoryRecyclerAdapter(this, this);
         category_recycler.setLayoutManager(new LinearLayoutManager(this));
         category_recycler.setAdapter(categoryAdapter);
     }
@@ -61,6 +71,7 @@ public class Main
     @Override
     protected void init()
     {
+        category = null;
         initRequest();
         initToolbar();
         addFragment(MainFragment.newInstance());
@@ -71,13 +82,20 @@ public class Main
         setSupportActionBar(toolbar);
         getSupportActionBar().setTitle(R.string.app_name);
         ActionBarDrawerToggle drawerToggle = new ActionBarDrawerToggle(this, main_drawer,
-                toolbar, R.string.app_name, R.string.MainFragment)
+                toolbar, R.string.app_name, R.string.app_name)
         {
             @Override
             public void onDrawerClosed(View drawerView)
             {
                 super.onDrawerClosed(drawerView);
-                toolbar.setSubtitle("onDrawerClosed");
+                if(category == null)
+                {
+                    toolbar.setSubtitle(R.string.posts);
+                }
+                else
+                {
+                    toolbar.setSubtitle(category.name);
+                }
 //                Log.e("ActionBarDrawerToggle", "onDrawerClosed");
             }
 
@@ -85,7 +103,7 @@ public class Main
             public void onDrawerOpened(View drawerView)
             {
                 super.onDrawerOpened(drawerView);
-                toolbar.setSubtitle("onDrawerOpened");
+                toolbar.setSubtitle(R.string.category);
 //                Log.e("ActionBarDrawerToggle", "onDrawerOpened");
             }
 
@@ -131,5 +149,31 @@ public class Main
         Cursor c = SQliteApi.getCategory();
         categoryAdapter.swapCursor(c);
         Log.e("getCategory", "Category Count = " + c.getCount());
+    }
+
+    @Override
+    public void pressCategory(int id)
+    {
+        Category unit = SQliteHelper.tryGetCategoryFromId(id);
+        if(unit != null)
+        {
+            if(unit.ID == 1)
+            {
+                if(category != null)
+                {
+                    category = null;
+                    replaceFragment(MainFragment.newInstance());
+                }
+            }
+            else
+            {
+                if( (category != null && category.ID != unit.ID) || category == null)
+                {
+                    category = unit;
+                    replaceFragment(MainFragment.newInstance(category.ID));
+                }
+            }
+        }
+        main_drawer.closeDrawer(GravityCompat.START);
     }
 }
