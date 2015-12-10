@@ -31,10 +31,11 @@ public class MainFragment
 
     //___________________VIEWS
     RecyclerView main_recycler;
+    private SwipyRefreshLayout swipyrefreshlayout;
+    View main_progress;
 
     //_______________FIELDS
     private Category category;
-    private SwipyRefreshLayout swipyrefreshlayout;
     private MainRecyclerAdapter adapter;
     private int page = 0;
     private int postsCount = -1;
@@ -62,6 +63,8 @@ public class MainFragment
     protected void findViews(View v)
     {
         super.findViews(v);
+        main_progress = v.findViewById(R.id.main_progress);
+        main_progress.setVisibility(View.VISIBLE);
         main_recycler = (RecyclerView) v.findViewById(R.id.main_recycler);
         swipyrefreshlayout = (SwipyRefreshLayout) v.findViewById(R.id.swipyrefreshlayout);
         initList();
@@ -80,10 +83,32 @@ public class MainFragment
                 category = unit;
             }
         }
-        getPosts();
+        getPosts(new RequestListener<GeekResponse>()
+        {
+
+            @Override
+            public void onRequestFailure(SpiceException spiceException)
+            {
+                swipyrefreshlayout.setRefreshing(false);
+                loadNewPosts();
+                main_progress.setVisibility(View.INVISIBLE);
+            }
+
+            @Override
+            public void onRequestSuccess(GeekResponse geekResponse)
+            {
+                swipyrefreshlayout.setRefreshing(false);
+                PostsResponse postsResponse = (PostsResponse) geekResponse;
+                if (postsResponse.posts != null && postsResponse.posts.size() > 0)
+                {
+                    loadNewPosts();
+                }
+                main_progress.setVisibility(View.INVISIBLE);
+            }
+        });
     }
 
-    private void getPosts()
+    private void getPosts(RequestListener<GeekResponse> rl)
     {
         String category_slug = null;
         if(category != null)
@@ -91,7 +116,11 @@ public class MainFragment
             category_slug = category.slug;
         }
         GetPosts request = new GetPosts(getActivity(), category_slug, page + 1);
-        GeekApp.spiceManager.execute(request, new RequestListener<GeekResponse>()
+        GeekApp.spiceManager.execute(request, rl);
+    }
+    private void getPosts()
+    {
+        getPosts(new RequestListener<GeekResponse>()
         {
 
             @Override
@@ -106,7 +135,7 @@ public class MainFragment
             {
                 swipyrefreshlayout.setRefreshing(false);
                 PostsResponse postsResponse = (PostsResponse) geekResponse;
-                if (postsResponse.posts != null && postsResponse.posts.size() > 0)
+                if(postsResponse.posts != null && postsResponse.posts.size() > 0)
                 {
                     loadNewPosts();
                 }
