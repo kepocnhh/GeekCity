@@ -12,9 +12,6 @@ public interface GeekAPI
     //_____________POSTS_______________//
 
     @GET("/wp-json/posts")
-    List<Post> getPosts();
-
-    @GET("/wp-json/posts")
     List<Post> getPostsFromPage(@Query("page") int page);
 
     @GET("/wp-json/posts")

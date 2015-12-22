@@ -17,21 +17,34 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:adjustViewBounds="true"/>
-
-        <TextView
-            android:id="@+id/post_title"
-            android:textColor="@color/black"
-            android:textSize="16sp"
-            android:layout_margin="4dp"
+        <LinearLayout
+            android:orientation="vertical"
+            android:layout_margin="6dp"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"/>
-        <FrameLayout android:id="@+id/post_excerpt"
-                     android:layout_width="fill_parent"
-                     android:layout_height="fill_parent"/>
-        <!--<WebView-->
-            <!--android:id="@+id/post_excerpt"-->
-            <!--android:layout_margin="4dp"-->
-            <!--android:layout_width="match_parent"-->
+            android:layout_height="wrap_content">
+            <TextView
+                android:id="@+id/post_title"
+                android:layout_gravity="center_horizontal"
+                android:gravity="center_horizontal"
+                android:textColor="@color/black"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                android:text="post_title"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"/>
+            <TextView
+                android:id="@+id/post_excerpt"
+                android:textColor="@color/black"
+                android:textSize="16sp"
+                android:text="post_excerpt"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"/>
+            <!--<FrameLayout android:id="@+id/post_excerpt"-->
+            <!--android:layout_width="wrap_content"-->
             <!--android:layout_height="wrap_content"/>-->
+        </LinearLayout>
+        <!--<FrameLayout android:id="@+id/post_excerpt"-->
+                     <!--android:layout_width="fill_parent"-->
+                     <!--android:layout_height="fill_parent"/>-->
     </LinearLayout>
 </android.support.v7.widget.CardView>

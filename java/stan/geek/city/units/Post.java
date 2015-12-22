@@ -26,10 +26,6 @@ public class Post
         content.put(Tables.PostSimple_excerpt_COLUMN, excerpt);
         content.put(Tables.PostSimple_featured_image_COLUMN, featured_image.guid);
         content.put(Tables.PostSimple_title_COLUMN, title);
-        if(terms != null)
-        {
-
-        }
         return content;
     }
 

@@ -3,7 +3,6 @@ package stan.geek.city.rest.requests.posts;
 import android.content.Context;
 
 import stan.geek.city.database.SQliteApi;
-import stan.geek.city.helpers.UriHelper;
 import stan.geek.city.rest.requests.GeekRequest;
 import stan.geek.city.rest.responses.posts.PostsResponse;
 

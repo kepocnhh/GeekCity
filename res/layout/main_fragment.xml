@@ -1,22 +1,24 @@
 <?xml version="1.0" encoding="utf-8"?>
-<com.orangegangsters.github.swipyrefreshlayout.library.SwipyRefreshLayout android:id="@+id/swipyrefreshlayout"
-                                                                          xmlns:android="http://schemas.android.com/apk/res/android"
-                                                                          xmlns:app="http://schemas.android.com/apk/res-auto"
-                                                                          android:background="@color/red"
-                                                                          android:layout_width="wrap_content"
-                                                                          android:layout_height="wrap_content"
-                                                                          app:direction="both">
-    <RelativeLayout
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:background="@color/white"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+    <com.orangegangsters.github.swipyrefreshlayout.library.SwipyRefreshLayout
+        xmlns:app="http://schemas.android.com/apk/res-auto"
+        android:id="@+id/swipyrefreshlayout"
+        android:background="@color/white"
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="match_parent"
+        app:direction="both">
         <android.support.v7.widget.RecyclerView
             android:id="@+id/main_recycler"
             android:layout_width="match_parent"
             android:layout_height="match_parent"/>
-        <ProgressBar
-            android:id="@+id/main_progress"
-            android:layout_centerInParent="true"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"/>
-    </RelativeLayout>
-</com.orangegangsters.github.swipyrefreshlayout.library.SwipyRefreshLayout>
+    </com.orangegangsters.github.swipyrefreshlayout.library.SwipyRefreshLayout>
+    <ProgressBar
+        android:id="@+id/main_progress"
+        android:layout_centerInParent="true"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"/>
+</RelativeLayout>
