@@ -2,10 +2,12 @@ package stan.geek.city.helpers;
 
 import android.content.ContentValues;
 import android.database.Cursor;
+import android.provider.BaseColumns;
 import android.util.Log;
 
 import org.apache.commons.lang3.StringEscapeUtils;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import stan.geek.city.database.SQliteApi;
@@ -62,5 +64,38 @@ public class SQliteHelper
             cursor.close();
         }
         return unit;
+    }
+    static public List<Integer> tryGetCategoryIdsFromParentId(int id)
+    {
+        List<Integer> units = new ArrayList<>();
+        units.add(id);
+        Cursor cursor = SQliteApi.getCategoryIdsFromParentId(id);
+        if(cursor != null && cursor.getCount() > 0)
+        {
+            Log.e("getCategoryFromParentId", cursor.getCount() + "");
+            while(!cursor.isClosed() && cursor.moveToNext())
+            {
+                units.addAll(tryGetCategoryIdsFromParentId(cursor.getInt(cursor.getColumnIndex(BaseColumns._ID))));
+            }
+            cursor.close();
+        }
+        return units;
+    }
+    static public List<Category> tryGetCategoryFromParentId(int id)
+    {
+        List<Category> units = new ArrayList<>();
+        Cursor cursor = SQliteApi.getCategoryFromParentId(id);
+        if(cursor != null && cursor.getCount() > 0)
+        {
+            Log.e("getCategoryFromParentId", cursor.getCount() + "");
+            while(!cursor.isClosed() && cursor.moveToNext())
+            {
+                Category unit = new Category();
+                unit.setCursor(cursor);
+                units.add(unit);
+            }
+            cursor.close();
+        }
+        return units;
     }
 }

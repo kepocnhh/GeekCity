@@ -61,6 +61,11 @@ public abstract class GeekRecyclerAdapter
         }
     }
 
+    protected String getString(String cn)
+    {
+        return mCursor.getString(mCursor.getColumnIndex(cn));
+    }
+
     public void swapCursor(Cursor c)
     {
         if(mCursor!=null)

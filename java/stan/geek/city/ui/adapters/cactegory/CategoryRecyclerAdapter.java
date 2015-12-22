@@ -33,8 +33,7 @@ public class CategoryRecyclerAdapter
     @Override
     protected void initView(RecyclerView.ViewHolder h, int i)
     {
-        getHolder(h).category_name.setText(
-                mCursor.getString(mCursor.getColumnIndex(Tables.Category_name_COLUMN)));
+        getHolder(h).category_name.setText(getString(Tables.Category_name_COLUMN));
         int parent_id = mCursor.getInt(mCursor.getColumnIndex(Tables.Category_parent_id_COLUMN));
         if(parent_id > 0)
         {

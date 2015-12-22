@@ -6,6 +6,10 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.provider.BaseColumns;
 
+import java.util.List;
+
+import stan.geek.city.helpers.SQliteHelper;
+
 public class SQliteApi
 {
     public static DatabaseHelper dbHelper;
@@ -72,10 +76,6 @@ public class SQliteApi
 
     public static Cursor getPostSimpleFromPage(int p)
     {
-//        SELECT * FROM Products
-//        WHERE Price BETWEEN 10 AND 20;
-//        ORDER BY last_name;
-//        LIMIT 20 OFFSET 10
         Cursor cursor = sdb.rawQuery(
                 "SELECT * "
                         + "FROM " + Tables.PostSimple_TABLE_NAME + " "
@@ -88,41 +88,45 @@ public class SQliteApi
     }
     public static Cursor getPostSimpleFromCategoryPage(int category_id, int page)
     {
-//        "SELECT * "
-//                + "FROM " + Tables.SESSIONS_TABLE_NAME + " "
-//                + "LEFT JOIN " + Tables.MOVIES_TABLE_NAME + " "
-//                + "ON " + Tables.SESSIONS_TABLE_NAME + "." +Tables.SESSIONS_MOVIE_ID_COLUMN + " = " + Tables.MOVIES_TABLE_NAME + "." + BaseColumns._ID + " "
-//                + "WHERE " + Tables.SESSIONS_DATE_COLUMN + "=\"" + date + "\" "
-//                + "GROUP BY " + Tables.SESSIONS_MOVIE_ID_COLUMN + " "
-
-//        String query =  "SELECT" + fields_to + fields_mid + fields_from +
-//                " FROM " + ct.TABLE_FROM + " AS table_from" +
-//                " JOIN " + ct.TABLE_NAME + " AS table_mid" +
-//                " ON table_from." + Contract.ID + "=table_mid." + ct.CONN_FROM +
-//                " JOIN " + ct.TABLE_TO + " AS table_to" +
-//                " ON table_to." + Contract.ID + "=table_mid." + ct.CONN_TO +
-//                " WHERE table_from." + Contract.ID + "=?";
-
-//        String query = "SELECT DISTINCT " +
-//                SHOPS_TABLE + "." + Contract.NAME + ", " +
-//                SHOPS_TABLE + "." + Contract.ID + ", " +
-//                SHOPS_TABLE + "." + Contract.Shop.LATITUDE + ", " +
-//                SHOPS_TABLE + "." + Contract.Shop.LONGITUDE +
-//                " FROM " + OFFERS_TABLE + " INNER JOIN " +
-//                SHOPS_AND_OFFERS_TABLE +
-//                " ON " + OFFERS_TABLE + "." + Contract.ID + "=" + SHOPS_AND_OFFERS_TABLE + "." + Contract.ShopsAndOffers.OFFER_ID +
-//                " INNER JOIN " + SHOPS_TABLE + " ON " + SHOPS_TABLE + "." + Contract.ID + "=" + SHOPS_AND_OFFERS_TABLE + "." + Contract.ShopsAndOffers.SHOP_ID +
-//                " WHERE " + OFFERS_TABLE + "." + Contract.ID + "=?";
+        List<Integer> units = SQliteHelper.tryGetCategoryIdsFromParentId(category_id);
+        String where = "";
+        if(units != null && units.size()>0)
+        {
+            where = "WHERE " + Tables.Category_TABLE_NAME + "." + BaseColumns._ID + "=" + units.get(0);
+            for(int i=1; i<units.size(); i++)
+            {
+                where += " OR " +Tables.Category_TABLE_NAME + "." + BaseColumns._ID + "=" + units.get(i);
+            }
+            where += " ";
+        }
         Cursor cursor = sdb.rawQuery(
-                "SELECT *"
+                "SELECT * "
                         + "FROM " + Tables.PostSimple_TABLE_NAME + " "
                         + "JOIN " + Tables.PostsAndCategory_TABLE_NAME + " "
                         + "ON " + Tables.PostSimple_TABLE_NAME + "." + BaseColumns._ID + "=" + Tables.PostsAndCategory_TABLE_NAME + "." + Tables.PostsAndCategory_post_id_COLUMN + " "
                         + "JOIN " + Tables.Category_TABLE_NAME + " "
                         + "ON " + Tables.Category_TABLE_NAME + "." + BaseColumns._ID + "=" + Tables.PostsAndCategory_TABLE_NAME + "." + Tables.PostsAndCategory_category_id_COLUMN + " "
-                        + "WHERE " + Tables.Category_TABLE_NAME + "." + BaseColumns._ID + "=" + category_id + " "
+                        + where
                         + "ORDER BY " + Tables.PostSimple_date_COLUMN + " DESC" + " "
-                        + "LIMIT " + page*10 + "; "
+                        + "LIMIT " + page * 10 + "; "
+                , new String[]{});
+        return cursor;
+    }
+    public static Cursor getCategoryFromParentId(int category_id)
+    {
+        Cursor cursor = sdb.rawQuery(
+                "SELECT * "
+                        + "FROM " + Tables.Category_TABLE_NAME + " "
+                        + "WHERE " + Tables.Category_parent_id_COLUMN + " = " + category_id + " ; "
+                , new String[]{});
+        return cursor;
+    }
+    public static Cursor getCategoryIdsFromParentId(int category_id)
+    {
+        Cursor cursor = sdb.rawQuery(
+                "SELECT " + BaseColumns._ID + " "
+                        + "FROM " + Tables.Category_TABLE_NAME + " "
+                        + "WHERE " + Tables.Category_parent_id_COLUMN + " = " + category_id + " ; "
                 , new String[]{});
         return cursor;
     }

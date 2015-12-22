@@ -1,6 +1,7 @@
 package stan.geek.city.ui.fragments.main;
 
 import android.database.Cursor;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -135,7 +136,7 @@ public class MainFragment
             {
                 swipyrefreshlayout.setRefreshing(false);
                 PostsResponse postsResponse = (PostsResponse) geekResponse;
-                if(postsResponse.posts != null && postsResponse.posts.size() > 0)
+                if (postsResponse.posts != null && postsResponse.posts.size() > 0)
                 {
                     loadNewPosts();
                 }
@@ -145,7 +146,14 @@ public class MainFragment
 
     private void initList()
     {
-        adapter = new MainRecyclerAdapter(getActivity());
+        if (android.os.Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP)
+        {
+            adapter = new MainRecyclerAdapter(getActivity(), R.layout.postsimple_item);
+        }
+        else
+        {
+            adapter = new MainRecyclerAdapter(getActivity());
+        }
         main_recycler.setLayoutManager(new LinearLayoutManager(getActivity()));
         main_recycler.setAdapter(adapter);
         swipyrefreshlayout.setColorSchemeResources(R.color.red, R.color.black, R.color.red);
